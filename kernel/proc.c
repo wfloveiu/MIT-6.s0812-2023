@@ -8,7 +8,7 @@
 
 struct cpu cpus[NCPU];
 
-struct proc proc[NPROC];
+struct proc proc[NPROC]; //进程表
 
 struct proc *initproc;
 
@@ -295,7 +295,6 @@ fork(void)
     return -1;
   }
   np->sz = p->sz;
-
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 
@@ -322,6 +321,7 @@ fork(void)
   np->state = RUNNABLE;
   release(&np->lock);
 
+  np->trace_mask = p->trace_mask;
   return pid;
 }
 
@@ -685,4 +685,17 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+uint64
+get_nproc(void)
+{
+  struct proc *p;
+  int num = 0;
+  acquire(&pid_lock);
+  for(p = proc; p < &proc[NPROC]; p++)
+    if(p->state != UNUSED)
+      num++;
+  release(&pid_lock);
+  return num;
 }

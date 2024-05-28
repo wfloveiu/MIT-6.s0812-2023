@@ -1,0 +1,6 @@
+usertrap()
+7 it is the number of system call SYS_exec, it is defined in the kernel/syscall.h
+user mode
+num=*(int *)0
+the value of num is in the virtual address 0, but address 0  dosen't mapped in the kernel address space 
+name = "initcode\000\000\000\000\000\000\000",pid = 1

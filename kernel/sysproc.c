@@ -5,6 +5,10 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
+
+uint64 get_freemem(void);
+uint64 get_nproc(void);
 
 uint64
 sys_exit(void)
@@ -90,4 +94,28 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+uint64
+sys_trace(void)
+{
+  int mask;
+  argint(0, &mask);
+  struct proc *p = myproc();  //get now process
+  p->trace_mask = mask;
+  return 0;
+}
+uint64
+sys_sysinfo(void) 
+{
+  struct sysinfo info;
+  struct proc *p = myproc();
+  uint64 st; //user point to struct sysinfo;
+  argaddr(0, &st); //系统调用号会被直接存放于 a7 这个寄存器中，所有的参数会被依次放置于 a0 开始的寄存器上。所以这里是0
+
+  info.freemem = get_freemem();
+  info.nproc = get_nproc();
+  
+  if(copyout(p->pagetable, st, (char *)&info, sizeof(info)) < 0)
+    return -1;
+  return 0;
 }

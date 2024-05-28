@@ -20,7 +20,7 @@ struct run {
 
 struct {
   struct spinlock lock;
-  struct run *freelist;
+  struct run *freelist; // 空闲链表
 } kmem;
 
 void
@@ -79,4 +79,19 @@ kalloc(void)
   if(r)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
+}
+
+uint64 
+get_freemem(void)
+{
+  uint64 page_num = 0;
+  acquire(&kmem.lock);
+  struct run *tmp = kmem.freelist;
+  while(tmp)
+  {
+    page_num++;
+    tmp = tmp->next;
+  }
+  release(&kmem.lock);
+  return page_num * PGSIZE;
 }

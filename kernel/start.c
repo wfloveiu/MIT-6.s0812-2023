@@ -31,7 +31,7 @@ start()
   w_mepc((uint64)main);
 
   // disable paging for now.
-  w_satp(0);
+  w_satp(0); //writing 0 into the page-table register
 
   // delegate all interrupts and exceptions to supervisor mode.
   w_medeleg(0xffff);
